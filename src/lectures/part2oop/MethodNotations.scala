@@ -3,18 +3,20 @@ package lectures.part2oop
 import scala.language.postfixOps
 
 object MethodNotations extends App {
+
   val mary = new Person("Mary", "Inception")
   // "operators" in Scala
   val tom = new Person("Tom", "Fight Club")
+  // prefix notation
+  // the following 2 are the same
+  val x = -1 // _minus_ is an example of unary operator
 
   // Those both expressions are the same
   println(mary.likes("Inception"))
 
   // an example of syntactic sugar
   println(mary likes "Inception") // infix notation = operator notation; works only with methods with only one parameter
-  // prefix notation
-  // the following 2 are the same
-  val x = -1 // _minus_ is an example of unary operator
+  val y = 1.unary_-
   println(mary + tom)
   println(mary.+(tom))
 
@@ -23,25 +25,6 @@ object MethodNotations extends App {
 
   println(1 + 2)
   println(1.+(2))
-  val y = 1.unary_-
-
-  // the following 2 are equivalent:
-  println(!mary)
-  println(mary.unary_!)
-
-
-  // the following 2 are equivalent:
-  // postfix notation
-  println(mary.isAlive)
-  println(mary isAlive)
-
-  // apply
-  // the following 3 are equivalent
-  println(mary.apply())
-  println(mary.apply)
-  // Whenever a class is called with (), automatically the _apply_ function will be called.
-  println(mary())
-
 
   // by specifying _name_ as a val, we're transforming it in a field
   class Person(val name: String, favoriteMovie: String) {
@@ -64,4 +47,20 @@ object MethodNotations extends App {
     def apply(): String = s"Hi, my name is $name and i like $favoriteMovie"
   }
 
+  // the following 2 are equivalent:
+  println(!mary)
+  println(mary.unary_!)
+
+
+  // the following 2 are equivalent:
+  // postfix notation
+  println(mary.isAlive)
+  println(mary isAlive)
+
+  // apply
+  // the following 3 are equivalent
+  println(mary.apply())
+  println(mary.apply)
+  // Whenever a class is called with (), automatically the _apply_ function will be called.
+  println(mary())
 }
