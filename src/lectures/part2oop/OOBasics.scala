@@ -51,6 +51,7 @@ class Person(name: String, val age: Int = 0) {
 
   // A secondary constructor can only cann others constructors.
   def this() = this("John Doe")
+
   print("Constructor!!!")
   counter.increment(10)
 }
