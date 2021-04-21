@@ -39,7 +39,7 @@ abstract class MyList[+A] {
   def ++[B >: A](list: MyList[B]): MyList[B]
 }
 
-object Empty extends MyList[Nothing] {
+case object Empty extends MyList[Nothing] {
   // ?? returns nothing, when called, it will thrown an _not implemented error_
   override def head(): Nothing = throw new NoSuchElementException
 
@@ -60,11 +60,7 @@ object Empty extends MyList[Nothing] {
   def ++[B >: Nothing](list: MyList[B]): MyList[B] = list
 }
 
-class Cons[+A](head: A, tail: MyList[A]) extends MyList[A] {
-  override def head(): A = head
-
-  override def tail(): MyList[A] = tail
-
+case class Cons[+A](head: A, tail: MyList[A]) extends MyList[A] {
   override def isEmpty(): Boolean = false
 
   override def add[B >: A](valueToAdd: B): MyList[B] = new Cons(valueToAdd, this)
@@ -106,6 +102,7 @@ class Cons[+A](head: A, tail: MyList[A]) extends MyList[A] {
 
 object ListTest extends App {
   val listOfIntegers: MyList[Int] = new Cons(1, new Cons(2, new Cons(3, Empty)))
+  val cloneOfListOfIntegers: MyList[Int] = new Cons(1, new Cons(2, new Cons(3, Empty)))
   val listOfStrings: MyList[String] = new Cons("Hello", new Cons("Scala", Empty))
 
   println("List with transformer: ")
@@ -129,6 +126,8 @@ object ListTest extends App {
 
   println(listOfIntegers)
   println(listOfStrings)
+
+  println(cloneOfListOfIntegers == listOfIntegers)
 }
 
 
