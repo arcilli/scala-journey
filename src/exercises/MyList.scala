@@ -127,7 +127,7 @@ object ListTest extends App {
 
   println(cloneOfListOfIntegers == listOfIntegers)
 
-  val superAdd = (x: Int) => (y: Int) => x+y
+  val superAdd = (x: Int) => (y: Int) => x + y
   println(superAdd(4)(5))
 }
 
