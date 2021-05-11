@@ -192,6 +192,13 @@ object ListTest extends App {
 
 
   println(listOfIntegers.fold(0)(_ + _))
+
+  // for comprehensions
+  println(for {
+    n <- listOfIntegers
+    string <- listOfStrings
+  } yield n + "-" + string
+  )
 }
 
 
