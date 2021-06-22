@@ -4,7 +4,11 @@ import filesystem.files.Directory
 
 class Mkdir(name: String) extends Command {
 
-  def doMkdir(state: State, name: String): State = ???
+  def doMkdir(state: State, name: String): State = {
+    val wd = state.wd
+    val fullPath = wd
+    // TODO: complete this
+  }
 
   override def apply(state: State): State = {
     val wd = state.wd
