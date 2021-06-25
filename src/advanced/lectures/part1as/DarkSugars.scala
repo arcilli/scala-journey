@@ -59,4 +59,38 @@ class DarkSugars extends App {
   }
   val myStream = 1 -->:2 -->: 3 -->: new MyStream[Int]
 
+  // #:: = prepend operation on strings
+
+  // syntax sugar #4: multi-word method naming
+
+  class TeenGirl(name: String) {
+    def `and then said`(gossip: String) = println(s"name said $gossip")
+  }
+
+  // infix method with spaces, since it has a single parameter
+  val lilly = new TeenGirl("Lilly")
+  lilly `and then said` "Scala is sooo sweet"
+
+  // syntax sugar #5: generics, infix types
+  class Composite[A, B]
+  val composite: Int Composite String = ???
+
+  class -->[A, B]
+  val towards: Int --> String = ??? // the same as -->[Int, String], where `-->` is the name of the function
+
+  // syntax sugar #6: update() is very special, much like apply()
+  // it is used in mutable collections
+  val anArray = Array(1, 2, 3)
+  anArray(2) = 7 // rewritten to anArray.update(index = 2, value=7)
+  // remember apply() AND update()
+
+  // syntax sugar #7: setters for mutable containers
+  class Mutable {
+    private var internalMember : Int = 0 // private for OO encapsulation
+    def member = internalMember // "getter"
+    def member_=(value: Int): Unit = internalMember = value //"setter"
+  }
+
+  val aMutableContainer = new Mutable
+  aMutableContainer.member = 42 // rewritten as aMutableContainer.member_=(42)
 }
