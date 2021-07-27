@@ -75,6 +75,8 @@ object Monads extends App {
 
         def map[B](f: T => B): Monad[B] = ???
         def flatten(m: Monad[Monad[T]]): Monad[T] = ???
+
+        (have List in mind)
        }
    */
 }
