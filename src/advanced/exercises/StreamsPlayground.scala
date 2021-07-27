@@ -1,6 +1,5 @@
 package advanced.exercises
 
-import advanced.lectures.part2advancedFunctionalProgramming.LazyEvaluation.MyStream
 
 import scala.annotation.tailrec
 
@@ -14,7 +13,7 @@ abstract class MyStream[+A] {
   def ++[B >:A](anotherStream: => MyStream[B]): MyStream[B] // concatenate 2 streams
 
   def foreach(f: A => Unit): Unit
-  def map[B](f: A => B): MyStream[B]
+  def map[B](f: (=> A) => B): MyStream[B]
   def flatMap[B](f: A=> MyStream[B]): MyStream[B]
   def filter(predicate: A => Boolean): MyStream[A]
 
@@ -50,7 +49,7 @@ object EmptyStream extends MyStream[Nothing] {
 
   override def foreach(f: Nothing => Unit): Unit = () // there are no elements on which to apply f
 
-  override def map[B](f: Nothing => B): MyStream[B] = this
+  override def map[B](f: (=> Nothing) => B): MyStream[B] = this
 
   override def flatMap[B](f: Nothing => MyStream[B]): MyStream[B] = this
 
@@ -61,10 +60,10 @@ object EmptyStream extends MyStream[Nothing] {
 }
 
 // byName tail => MyStream[A]
-class Cons[+A](hd: A, tl: => MyStream[A]) extends MyStream[A] {
+class Cons[+A](hd: => A, tl: => MyStream[A]) extends MyStream[A] {
   override def isEmpty: Boolean = false
 
-  override val head: A = hd
+  override lazy val head: A = hd
 
   override lazy val tail: MyStream[A] = tl // call by need: call by name + lazy val
 
@@ -87,7 +86,7 @@ class Cons[+A](hd: A, tl: => MyStream[A]) extends MyStream[A] {
   * mapped = s.map(_ + 1) = new Cons(1+1, s.tail.map(_ + 1))
   * the evaluation of `mapped.tail` is made only when i call something mapped.tail
    */
-  override def map[B](f: A => B): MyStream[B] = new Cons(f(head), tail.map(f)) // preserves lazy evaluation
+  override def map[B](f: (=> A) => B): MyStream[B] = new Cons(f(head), tail.map(f)) // preserves lazy evaluation
 
   override def flatMap[B](f: A => MyStream[B]): MyStream[B] = f(head) ++ tail.flatMap(f)
 

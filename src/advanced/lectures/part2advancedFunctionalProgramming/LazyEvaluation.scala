@@ -92,7 +92,7 @@ object LazyEvaluation extends App {
     def ++[B >:A](anotherStream: MyStream[B]): MyStream[B] // concatenate 2 streams
 
     def foreach(f: A => Unit): Unit
-    def map[B](f: A => B): MyStream[B]
+    def map[B](f: => A => B): MyStream[B]
     def flatMap[B](f: A=> MyStream[B]): MyStream[B]
     def filter(predicate: A => Boolean): MyStream[A]
 
