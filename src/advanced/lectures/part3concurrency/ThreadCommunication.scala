@@ -1,5 +1,8 @@
 package advanced.lectures.part3concurrency
 
+import scala.collection.mutable
+import scala.util.Random
+
 object ThreadCommunication extends App{
 
   class SimpleContainer {
@@ -67,6 +70,30 @@ object ThreadCommunication extends App{
     producer.start()
   }
   smartProducerConsumer()
-//  naiveProdCons()
 
+  /*
+    producer -> [ ? ? ?] -> consumer extract any value that's new
+   */
+
+  def prodConsLargeBuffer(): Unit = {
+    val buffer: mutable.Queue[Int] = new mutable.Queue[Int]
+    val capacity = 3
+
+    val consumer = new Thread( () => {
+      val random = new Random()
+
+      while(true) {
+        buffer.synchronized{
+          if (buffer.isEmpty) {
+            println("[consumer] buffer empty... waiting")
+            buffer.wait()
+          }
+
+          // there must be at LEAST ONE value in the buffer
+          val x = buffer.dequeue()
+          println(s"[consumer] consumed $x")
+        }
+      })
+    })
+  }
 }
