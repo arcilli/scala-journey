@@ -65,7 +65,7 @@ object ThreadCommunication extends App {
     producer.start()
   }
 
-//  smartProdCons()
+  //  smartProdCons()
 
   /**
    * producer -> [ ? ? ? ] -> consumer
@@ -101,8 +101,8 @@ object ThreadCommunication extends App {
       val random = new Random()
       var i = 0
 
-      while(true) {
-        buffer.synchronized{
+      while (true) {
+        buffer.synchronized {
           if (buffer.size == capacity) {
             println("[producer] buffer is full, waiting...")
             buffer.wait()
@@ -115,7 +115,7 @@ object ThreadCommunication extends App {
           // Hey consumer, new food for you
           buffer.notify()
 
-          i = i+1
+          i = i + 1
         }
         Thread.sleep(random.nextInt(500))
       }
@@ -125,7 +125,80 @@ object ThreadCommunication extends App {
     producer.start()
   }
 
-  prodConsLargeBuffer()
+  //  prodConsLargeBuffer()
+  /*
+    Prod-cons, level 3: multiple producers & consumers on the same buffer
+      producer 1 -> [ ? ? ?] -> consumer 1
+      producer 2 -----^   ^---- consumer 2
+   */
+
+  class Consumer(id: Int, buffer: mutable.Queue[Int]) extends Thread {
+    override def run(): Unit = {
+      val random = new Random()
+      while (true) {
+        buffer.synchronized {
+          /*
+            producer produces a value, 2 cons are waiting
+            notifies ONE consumer, notifies the buffer
+            notifies the other consumer
+           */
+          while (buffer.isEmpty) {
+            println(s"[consumer $id] buffer empty, waiting...")
+            buffer.wait()
+          }
+
+          // there must be at least ONE value in the buffer.
+          val x = buffer.dequeue() // OOps!
+          println(s"[consumer $id] consumed " + x)
+
+          // hey producer, there's an empty space available, are you lazy or wut?
+          // notify signals only one notifiers
+          buffer.notify()
+        }
+        Thread.sleep(random.nextInt(500))
+      }
+    }
+  }
+
+  class Producer(id: Int, buffer: mutable.Queue[Int], capacity: Int) extends Thread {
+    override def run(): Unit = {
+      val random = new Random()
+      var i = 0
+
+      while (true) {
+        buffer.synchronized {
+          while (buffer.size == capacity) {
+            println("[producer] buffer is full, waiting...")
+            buffer.wait()
+          }
+
+          // there must be at least ONE empty space in the buffer
+          println("[producer] producing " + i)
+          buffer.enqueue(i)
+
+          // This will notify somebody
+          buffer.notify()
+
+          i = i + 1
+        }
+        Thread.sleep(random.nextInt(500))
+      }
+    }
+  }
+
+  def multiProdCons(nConsumers: Int, nProducers: Int): Unit = {
+    val buffer: mutable.Queue[Int] = new mutable.Queue[Int]
+    val capacity = 3
+
+    (1 to nConsumers).foreach{
+      i => new Consumer(i, buffer).start()
+    }
+
+    (1 to nProducers).foreach{
+      i => new Producer(i, buffer, capacity).start()
+    }
+  }
+  multiProdCons(3, 3)
 
   class SimpleContainer {
     private var value: Int = 0
