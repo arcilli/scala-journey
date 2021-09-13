@@ -4,6 +4,18 @@ import scala.collection.mutable
 import scala.util.Random
 
 object ThreadCommunication extends App {
+  val sam = Friend("Sam")
+
+  //  smartProdCons()
+  val pierre = Friend("Pierre")
+
+  //  prodConsLargeBuffer()
+  /*
+    Prod-cons, level 3: multiple producers & consumers on the same buffer
+      producer 1 -> [ ? ? ?] -> consumer 1
+      producer 2 -----^   ^---- consumer 2
+   */
+
   /**
    * The producer-consumer problem
    *
@@ -65,8 +77,6 @@ object ThreadCommunication extends App {
     producer.start()
   }
 
-  //  smartProdCons()
-
   /**
    * producer -> [ ? ? ? ] -> consumer
    *
@@ -125,12 +135,48 @@ object ThreadCommunication extends App {
     producer.start()
   }
 
-  //  prodConsLargeBuffer()
-  /*
-    Prod-cons, level 3: multiple producers & consumers on the same buffer
-      producer 1 -> [ ? ? ?] -> consumer 1
-      producer 2 -----^   ^---- consumer 2
+  def multiProdCons(nConsumers: Int, nProducers: Int): Unit = {
+    val buffer: mutable.Queue[Int] = new mutable.Queue[Int]
+    val capacity = 3
+
+    (1 to nConsumers).foreach {
+      i => new Consumer(i, buffer).start()
+    }
+
+    (1 to nProducers).foreach {
+      i => new Producer(i, buffer, capacity).start()
+    }
+  }
+  //  multiProdCons(3, 3)
+
+  /**
+   * Exercises.
+   * 1) Think of an example where notifyAll acts in a different way than notify?
+   * 2) Create a deadlock
+   * 3) Create a live lock (threads can not continue, threads yield control execution to each other, so no one can continue.
    */
+
+  // notifyAll
+  def testNotifyAll(): Unit = {
+    val bell = new Object
+
+    (1 to 10).foreach(i => new Thread(() => {
+      bell.synchronized {
+        println("s[thread $i] waiting... ")
+        bell.wait()
+        println(s"[thread $i] hooray!")
+      }
+    }
+    ).start())
+
+    new Thread(() => {
+      Thread.sleep(2000)
+      println("[announcer] Rock'n roll")
+      bell.synchronized {
+        bell.notifyAll()
+      }
+    }).start()
+  }
 
   class Consumer(id: Int, buffer: mutable.Queue[Int]) extends Thread {
     override def run(): Unit = {
@@ -160,6 +206,8 @@ object ThreadCommunication extends App {
     }
   }
 
+  //  testNotifyAll()
+
   class Producer(id: Int, buffer: mutable.Queue[Int], capacity: Int) extends Thread {
     override def run(): Unit = {
       val random = new Random()
@@ -186,20 +234,6 @@ object ThreadCommunication extends App {
     }
   }
 
-  def multiProdCons(nConsumers: Int, nProducers: Int): Unit = {
-    val buffer: mutable.Queue[Int] = new mutable.Queue[Int]
-    val capacity = 3
-
-    (1 to nConsumers).foreach{
-      i => new Consumer(i, buffer).start()
-    }
-
-    (1 to nProducers).foreach{
-      i => new Producer(i, buffer, capacity).start()
-    }
-  }
-  multiProdCons(3, 3)
-
   class SimpleContainer {
     private var value: Int = 0
 
@@ -213,5 +247,54 @@ object ThreadCommunication extends App {
       result
     }
   }
+
+  // 2 - deadlock
+  case class Friend(name: String) {
+    var side = "right"
+
+    def bow(other: Friend) = {
+      this.synchronized {
+        println(s"$this: I am bowing to my fried $other")
+        other.rise(this)
+        println(s"$this: my friend $other has risen")
+      }
+    }
+
+    def rise(other: Friend) = {
+      this.synchronized {
+        println(s"$this I am rising to my friend $other")
+      }
+    }
+
+    def pass(other: Friend): Unit = {
+      while (this.side == other.side) {
+        println(s"$this: Oh but please, $other, feel free to pass...")
+        switchSide()
+        Thread.sleep(1000)
+      }
+    }
+
+    def switchSide(): Unit = {
+      if (side == "right") side = "left"
+      else side = "right"
+    }
+  }
+
+  //  new Thread(() => {
+  //    sam.bow(pierre)
+  //  }).start() // sam's lock, then pierre's lock
+  //
+  //  new Thread(() => {
+  //    pierre.bow(sam)
+  //  }).start() // pierre's lock, then sam's lock
+
+  // 3 - livelock
+  new Thread(() => {
+    sam.pass(pierre)
+  }).start()
+
+  new Thread(() => {
+    pierre.pass(sam)
+  }).start()
 }
 
