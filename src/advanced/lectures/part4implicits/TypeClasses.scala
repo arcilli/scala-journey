@@ -11,7 +11,8 @@ object TypeClasses extends App {
     def serialize(value: T): String
   }
 
-  User("John", 32, "john@outlook.com").toHtml
+  val john = User("John", 32, "john@outlook.com")
+  john.toHtml
   /*
     1. This only works for the types WE write
     2. One implementation out of quite a number
@@ -36,7 +37,7 @@ object TypeClasses extends App {
     }
   }
 
-  object UserSerializer extends HTMLSerializer[User] {
+  implicit object UserSerializer extends HTMLSerializer[User] {
     override def serialize(value: User): String = s"<div>${value.name} (${value.age} yo) <a href=${value.email}/>"
   }
 
@@ -60,6 +61,10 @@ object TypeClasses extends App {
     def action(value: T): String
   }
 
+  object MyTypeClassTemplate{
+    def apply[T](implicit instance: MyTypeClassTemplate[T]) = instance
+  }
+
   /**
    * Equality
    */
@@ -67,11 +72,45 @@ object TypeClasses extends App {
     def apply(a: T, b: T): Boolean
   }
 
-  object NameEquality extends Equal[User] {
+  implicit object NameEquality extends Equal[User] {
     override def apply(a: User, b: User): Boolean = (a.name == b.name)
   }
 
   object FullEquality extends Equal[User] {
     override def apply(a: User, b: User): Boolean = (a.name == b.name && a.email == b.email)
   }
+
+  // part 2
+  object HTMLSerializer {
+    def serialize[T](value: T)(implicit serializer: HTMLSerializer[T]): String = {
+      serializer.serialize(value)
+    }
+
+    def apply[T](implicit serializer: HTMLSerializer[T]): Unit = serializer
+  }
+
+  implicit object IntSerializer extends HTMLSerializer[Int] {
+    override def serialize(value: Int): String = s"<div>$value</div>"
+  }
+
+  println(HTMLSerializer.serialize(42)(IntSerializer))
+  println(HTMLSerializer.serialize(42))
+  println(HTMLSerializer.serialize(john))
+
+  // access to the entire type class interface
+//  println(HTMLSerializer[User].serialize(john))
+
+  /*
+  Exercise: implement the Type class pattern for the equality type class
+   */
+  object Equal {
+    def apply[T](a:T, b: T)(implicit equalizer: Equal[T]): Boolean =
+      equalizer.apply(a, b)
+  }
+
+  val anotherJohn = User("John", 45, "another-john@outlook.com")
+  println(Equal(john, anotherJohn))
+
+  // AD-HOC polymorphism
+
 }
