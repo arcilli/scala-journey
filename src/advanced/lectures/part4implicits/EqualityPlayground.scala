@@ -56,5 +56,5 @@ Exercise: implement the Type class pattern for the equality type class
     TYPE SAFE
    */
   println(john == 42)
-  println(john === 43) // this will not compile, the compiler will force me so the 2 variables will be of the same type
+//  println(john === 43) // this will not compile, the compiler will force me so the 2 variables will be of the same type
 }
