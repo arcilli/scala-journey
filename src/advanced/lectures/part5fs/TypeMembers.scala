@@ -84,6 +84,4 @@ object TypeMembers extends App {
 
   // hint: all the numbers are under Number type
   // use type members & type member constraints (bounds)
-
-
 }
