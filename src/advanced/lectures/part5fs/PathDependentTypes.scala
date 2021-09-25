@@ -61,6 +61,6 @@ object PathDependentTypes extends App {
   def get[ItemType <: ItemLike](key: ItemLike#Key): ItemType = ???
 
   get[IntItem](42) = ??? // this should compile
-  get[StringItem]("home") = ??? //ok
-  get[IntItem]("scala") // not ok
+//  get[StringItem]("home") = ??? //ok
+//  get[IntItem]("scala") // not ok
 }
